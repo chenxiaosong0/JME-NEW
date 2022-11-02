@@ -5,14 +5,13 @@ import com.jme3.animation.AnimControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.events.MotionEvent;
+import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Spline;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
@@ -48,12 +47,14 @@ public class TestMotion extends SimpleApplication {
 
     private MotionPath motionPath;
     private MotionEvent motionControl;
+    private MotionEvent cammotionControl;
+    private CameraNode camNode;//运动相机节点
+    private ChaseCamera chaseCamera;//追踪相机
 
     @Override
     public void simpleInitApp() {
 
         flyCam.setMoveSpeed(10f);
-//        flyCam.setDragToRotate(true);
         initLights();
 
         initInputs();
@@ -70,13 +71,25 @@ public class TestMotion extends SimpleApplication {
         AnimControl ac = player.getControl(AnimControl.class);
         AnimChannel channel = ac.createChannel();
         channel.setAnim("Run");
-        channel.setSpeed(2f);
+        channel.setSpeed(1f);
 
-        CameraNode camNode = new CameraNode("Motion cam", cam);//摄像机
+         camNode = new CameraNode("Motion cam", cam);//摄像机
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        motionControl = new MotionEvent(camNode , motionPath);
-        motionControl = new MotionEvent(player, motionPath);
+        camNode.setEnabled(false);
+        cammotionControl = new MotionEvent(camNode , motionPath);
+        motionControl = new MotionEvent(player, motionPath);//猴子
+//        motionControl.setRotation(new Quaternion().fromAngleNormalAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
 
+        cammotionControl.setLookAt(player.getParent().getWorldTranslation(), Vector3f.UNIT_Y);
+        cammotionControl.setDirectionType(MotionEvent.Direction.Path);
+        rootNode.attachChild(camNode);
+        //追踪相机
+        chaseCamera =new ChaseCamera(cam,player);
+        chaseCamera.registerWithInput(inputManager);
+        chaseCamera.setSmoothMotion(false);//设置丝滑与否
+        chaseCamera.setMaxDistance(50);//设置距离
+        chaseCamera.setDefaultDistance(10);
+//        cammotionControl.setRotation(new Quaternion().fromAngleNormalAxis(-FastMath.HALF_PI, Vector3f.UNIT_Z));
 
         // 在行进中，注视某个位置
 //		Vector3f position = new Vector3f(0, 0, 0);
@@ -174,10 +187,16 @@ public class TestMotion extends SimpleApplication {
                 if (name.equals("play_stop") && keyPressed) {
                     if (playing) {
                         playing = false;
+//                        chaseCamera.setEnabled(true);
+//                        camNode.setEnabled(false);
                         motionControl.stop();
+//                        cammotionControl.stop();
                     } else {
                         playing = true;
+//                        chaseCamera.setEnabled(true);
+//                        camNode.setEnabled(true);
                         motionControl.play();
+//                        cammotionControl.play();
                     }
                 }
 
