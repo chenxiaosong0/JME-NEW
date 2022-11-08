@@ -14,6 +14,26 @@
 <!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
 <!--    </properties>-->
 
+    <build>
+        <resources>
+            <!--两个resource节点都加上吧，如果你两个目录下都有配置文件的话。只加一个resource节点，只会编译这个节点配置的目录下的xml,properties文件-->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.fxml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java/GUI</directory>
+                <includes>
+                    <include>SceneBuilderTest.fxml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>

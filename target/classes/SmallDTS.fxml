@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <HBox prefHeight="25.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <MenuBar prefHeight="25.0" prefWidth="185.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" text="Open" />
+                        <MenuItem mnemonicParsing="false" text="Open Recent" />
+                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" text="Save as.." />
+                        <MenuItem mnemonicParsing="false" text="Export.." />
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Tool windows">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Commit" />
+                          </items>
+                        </Menu>
+                      <MenuItem mnemonicParsing="false" text="Tool bar" />
+                        <MenuItem mnemonicParsing="false" text="Appearance" />
+                    </items>
+                  </Menu>
+              </menus>
+            </MenuBar>
+            <Label prefHeight="25.0" prefWidth="52.0" text="Search:" />
+            <TextField prefHeight="9.0" prefWidth="126.0">
+               <HBox.margin>
+                  <Insets top="2.0" />
+               </HBox.margin>
+            </TextField>
+            <MenuButton mnemonicParsing="false" text="Formally">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Debug" />
+                <MenuItem mnemonicParsing="false" text="Buid" />
+              </items>
+               <HBox.margin>
+                  <Insets left="2.0" top="2.0" />
+               </HBox.margin>
+            </MenuButton>
+         </children>
+      </HBox>
+   </top>
+   <left>
+      <HBox prefHeight="383.0" prefWidth="115.0" BorderPane.alignment="CENTER" />
+   </left>
+   <bottom>
+      <VBox prefHeight="105.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <right>
+      <HBox prefHeight="270.0" prefWidth="146.0" BorderPane.alignment="CENTER" />
+   </right>
+   <center>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
