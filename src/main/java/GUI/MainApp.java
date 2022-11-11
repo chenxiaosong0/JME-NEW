@@ -26,9 +26,11 @@ public class MainApp extends Application {
 
     public void initRootLayout(){
         try {
-            //Load root layout from fxml file
-//            FXMLLoader loader = new FXMLLoader();
+//            Load root layout from fxml file
+            FXMLLoader loader = new FXMLLoader();
 //            loader.setLocation(getClass().getClassLoader().getResource("/SceneBuilderTest.fxml"));
+
+
             rootLayout = FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("SceneBuilderTest.fxml")));
 //             = (VBox) loader.load();
 
