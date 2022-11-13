@@ -1,23 +1,13 @@
 package SwingGUI;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
-import com.jgoodies.forms.layout.FormLayout;
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -49,9 +39,9 @@ public class Num1 {
         frame.setContentPane(num1.start);
         frame.setLocation(400, 200);
         frame.setResizable(true);
-        frame.setSize(800, 600);
+        frame.setSize(1000, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        frame.pack();//自适应
 
 //        Container frameContentPane = frame.getContentPane();
 //        for (int i = 0; i < frameContentPane.getComponents().length; i++) {
@@ -65,10 +55,10 @@ public class Num1 {
 
     private void createUIComponents(JFrame frame) {
         // TODO: place custom component creation code here
-        for (Component co : frame.getRootPane().getContentPane().getComponents()) {
-            System.out.println(co.getClass().toString());  //得到co的类型
-            co.getComponentAt(1, 1);
-        }
+//        for (Component co : frame.getRootPane().getContentPane().getComponents()) {
+//            System.out.println(co.getClass().toString());  //得到co的类型
+//            co.getComponentAt(1, 1);
+//        }
 
         menuBar = new MenuBar();
         file = new Menu("File");
