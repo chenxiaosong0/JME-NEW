@@ -1,5 +1,4 @@
 package SwingGUI;
-
 import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
@@ -16,12 +15,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-/**
- * @author xiaosongChen
- * @create 2022-11-13 22:19
- * @description :
- */
 public class TestCanvas {
+
     private static JmeCanvasContext context;
     private static Canvas canvas;
     private static LegacyApplication app;
@@ -29,24 +24,28 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
-    private static final String appClass = "jme3test.post.TestRenderToTexture";
-
+    private static final String appClass = "SwingGUI.TestRenderToTexture";
 
     private static void createTabs(){
         tabbedPane = new JTabbedPane();
+
         canvasPanel1 = new JPanel();
         canvasPanel1.setLayout(new BorderLayout());
-        tabbedPane.addTab("jME3 Canvas 1",canvasPanel1);
+        tabbedPane.addTab("jME3 Canvas 1", canvasPanel1);
 
         canvasPanel2 = new JPanel();
         canvasPanel2.setLayout(new BorderLayout());
-        tabbedPane.addTab("jME3 Canvas 2",canvasPanel2);
+        tabbedPane.addTab("jME3 Canvas 2", canvasPanel2);
+
         frame.getContentPane().add(tabbedPane);
+
         currentPanel = canvasPanel1;
     }
+
     private static void createMenu(){
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
+
         JMenu menuTortureMethods = new JMenu("Canvas Torture Methods");
         menuBar.add(menuTortureMethods);
 
@@ -57,8 +56,11 @@ public class TestCanvas {
             public void actionPerformed(ActionEvent e) {
                 if (itemRemoveCanvas.getText().equals("Remove Canvas")){
                     currentPanel.remove(canvas);
+
+                    itemRemoveCanvas.setText("Add Canvas");
                 }else if (itemRemoveCanvas.getText().equals("Add Canvas")){
-                    currentPanel.add(canvas,BorderLayout.CENTER);
+                    currentPanel.add(canvas, BorderLayout.CENTER);
+
                     itemRemoveCanvas.setText("Remove Canvas");
                 }
             }
@@ -139,6 +141,7 @@ public class TestCanvas {
                 startApp();
             }
         });
+
         JMenuItem itemExit = new JMenuItem("Exit");
         menuTortureMethods.add(itemExit);
         itemExit.addActionListener(new ActionListener() {
@@ -159,6 +162,7 @@ public class TestCanvas {
                 app.stop();
             }
         });
+
         createTabs();
         createMenu();
     }
@@ -201,7 +205,9 @@ public class TestCanvas {
                 return null;
             }
         });
+
     }
+
     public static void main(String[] args){
         JmeFormatter formatter = new JmeFormatter();
 
@@ -233,4 +239,5 @@ public class TestCanvas {
             }
         });
     }
+
 }
