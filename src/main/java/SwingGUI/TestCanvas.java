@@ -1,7 +1,9 @@
 package SwingGUI;
+
 import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeCanvasContext;
 import com.jme3.util.JmeFormatter;
 
 import javax.swing.*;
@@ -24,7 +26,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
-    private static final String appClass = "TestRenderToTexture.java";
+    private static final String appClass = "SwingGUI/TestRenderToTexture.java";
 
     private static void createTabs(){
         tabbedPane = new JTabbedPane();
@@ -209,29 +211,18 @@ public class TestCanvas {
     }
 
     public static void main(String[] args){
-
         JmeFormatter formatter = new JmeFormatter();
-
         Handler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(formatter);
-
         Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
         Logger.getLogger("").addHandler(consoleHandler);
-
         createCanvas(appClass);
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ex) {
-        }
-
+        //在处理完所有挂起的AWT事件后发生。当应用程序线程需要更新GUI时，应该使用此方法。
         SwingUtilities.invokeLater(new Runnable(){
             @Override
             public void run(){
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-
                 createFrame();
-
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
                 startApp();

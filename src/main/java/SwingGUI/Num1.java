@@ -1,5 +1,14 @@
 package SwingGUI;
 
+import com.jme3.app.SimpleApplication;
+import com.jme3.material.Material;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
+import com.jme3.system.AppSettings;
+import com.jme3.system.awt.AwtPanel;
+import com.jme3.system.awt.AwtPanelsContext;
+import com.jme3.system.awt.PaintMode;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
@@ -7,8 +16,13 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author xiaosongChen
@@ -16,7 +30,7 @@ import java.util.Locale;
  * @description :Swing
  */
 
-public class Num1 {
+public class Num1 extends SimpleApplication {
     private JPanel start;
     private JTree tree1;
     private JPanel bottom;
@@ -31,26 +45,43 @@ public class Num1 {
     private MenuBar menuBar;
     private Menu file, New;
     private MenuItem open, project, set, insert, save;
+    final private static CountDownLatch panelsAreReady = new CountDownLatch(1);
+    private static Num1 app = new Num1();
+    private static AwtPanel panel, panel2;
+    private static int panelsClosed = 0;
 
     public static void main(String[] args) {
+        Logger.getLogger("com.jme3").setLevel(Level.WARNING);
+//        app = new Num1();
+        app.setShowSettings(false);
+        AppSettings settings = new AppSettings(true);
+        settings.setCustomRenderer(AwtPanelsContext.class);
+        settings.setFrameRate(60);
+        app.setSettings(settings);
+        app.start();
 
-        JFrame frame = new JFrame("Num1");
-        Num1 num1 = new Num1();
-        frame.setContentPane(num1.start);
-        frame.setLocation(400, 200);
-        frame.setResizable(true);
-        frame.setSize(1000, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();//自适应
+        // 在处理完所有挂起的AWT事件后发生。当应用程序线程需要更新GUI时，应该使用此方法。
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException exception) {
+                    return;
+                }
 
-//        Container frameContentPane = frame.getContentPane();
-//        for (int i = 0; i < frameContentPane.getComponents().length; i++) {
-//            System.out.println(frameContentPane.getComponents()[i]);
-//        }
-        num1.createUIComponents(frame);
-        num1.action();
-        frame.setVisible(true);
-
+                final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
+                System.out.println(ctx);
+                panel = ctx.createPanel(PaintMode.Accelerated);
+                panel.setPreferredSize(new Dimension(400, 300));
+                ctx.setInputSource(panel);
+//                panel2 = ctx.createPanel(PaintMode.Accelerated);
+//                panel2.setPreferredSize(new Dimension(400, 300));
+                createWindowForPanel(panel, 300);
+//                createWindowForPanel(panel2, 700);
+                panelsAreReady.countDown();
+            }
+        });
     }
 
     private void createUIComponents(JFrame frame) {
@@ -59,7 +90,6 @@ public class Num1 {
 //            System.out.println(co.getClass().toString());  //得到co的类型
 //            co.getComponentAt(1, 1);
 //        }
-
         menuBar = new MenuBar();
         file = new Menu("File");
         open = new MenuItem("Open");
@@ -76,27 +106,67 @@ public class Num1 {
         menuBar.add(file);
         menuBar.add(New);
         frame.setMenuBar(menuBar);
-
         Label label = new Label("This is  Center");
         button = new JButton("Click");
         center.setBackground(Color.lightGray);
         Top.setBackground(Color.white);
         tree1.setFont(new Font("JetBrains Mono", Font.BOLD, 14));
         bottom.setBackground(Color.LIGHT_GRAY);
-
         bottom.add(button);
         center.add(label);
-
     }
 
-    private void createUIComponents() {
+    //创建jframe窗口
+    private static void createWindowForPanel(AwtPanel panel, int location) {
+        JFrame frame = new JFrame("Num1");
+//        Num1 num1 = new Num1();
+        frame.setContentPane(app.start);
+        frame.setLocation(400, 200);
+        frame.setResizable(true);
+        frame.setSize(1000, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();//自适应
+        app.createUIComponents(frame);
+        app.action();
+        frame.setVisible(true);
+//        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                app.stop();
+                System.out.println("关闭窗口");
+            }
+        });
+        frame.pack();
+        frame.setLocation(location, Toolkit.getDefaultToolkit().getScreenSize().height);
+        frame.setVisible(true);
+    }
 
+    //jme的画面
+    @Override
+    public void simpleInitApp() {
+        flyCam.setDragToRotate(true);
+        Box b = new Box(1, 1, 1);
+        Geometry geom = new Geometry("Box", b);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+        geom.setMaterial(mat);
+        rootNode.attachChild(geom);
+        /*
+         * Wait until  AWT panels are ready.
+         */
+        try {
+            panelsAreReady.await();
+        } catch (InterruptedException exception) {
+            throw new RuntimeException("Interrupted while waiting for panels", exception);
+        }
+        panel.attachTo(true, viewPort);
+        guiViewPort.setClearFlags(true, true, true);
     }
 
     //触发事件
     private void action() {
-
-
         //open
         open.addActionListener(new ActionListener() {
             @Override
@@ -135,8 +205,9 @@ public class Num1 {
 
     }
 
+    //获取当前系统界面格式并同步
     {
-        try {//获取当前系统界面格式并同步
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                  | UnsupportedLookAndFeelException e) {
@@ -144,7 +215,6 @@ public class Num1 {
             e.printStackTrace();
         }
     }
-
 
     public Num1() {
         $$$setupUI$$$();
