@@ -117,7 +117,6 @@ public class HelloAnimation extends SimpleApplication {
      * 初始化场景
      */
     private void initScene() {
-        // 加载Jaime模型
         spatial = assetManager.loadModel("Models/Jaime/Jaime.j3o");
         rootNode.attachChild(spatial);
 

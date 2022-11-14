@@ -24,7 +24,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
-    private static final String appClass = "SwingGUI.TestRenderToTexture";
+    private static final String appClass = "TestRenderToTexture.java";
 
     private static void createTabs(){
         tabbedPane = new JTabbedPane();
@@ -209,6 +209,7 @@ public class TestCanvas {
     }
 
     public static void main(String[] args){
+
         JmeFormatter formatter = new JmeFormatter();
 
         Handler consoleHandler = new ConsoleHandler();

@@ -3,8 +3,9 @@ package SwingGUI;
 /**
  * @author xiaosongChen
  * @create 2022-11-14 9:02
- * @description :
+ * @description :按下空格键就停止更新jme中的画布
  */
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -30,7 +31,7 @@ import com.jme3.texture.Texture2D;
 public class TestRenderToTexture extends SimpleApplication implements ActionListener {
 
     private static final String TOGGLE_UPDATE = "Toggle Update";
-    private Geometry offBox;
+    private Geometry offBox ;
     private float angle = 0;
     private ViewPort offView;
 
@@ -68,10 +69,10 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
 
         // setup framebuffer's scene
         Box boxMesh = new Box(1, 1, 1);
-        Material material = assetManager.loadMaterial("Interface/Logo/Logo.j3m");
+//        Material material = assetManager.loadMaterial("src/main/resources/Interface/Logo/Logo.j3m");
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         offBox = new Geometry("box", boxMesh);
         offBox.setMaterial(material);
-
         // attach the scene to the viewport to be rendered
         offView.attachScene(offBox);
 
