@@ -2,16 +2,16 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="SwingGUI.Num1">
   <grid id="27dc6" binding="start" layout-manager="BorderLayout" hgap="5" vgap="5">
     <constraints>
-      <xy x="20" y="5" width="1000" height="800"/>
+      <xy x="20" y="5" width="1200" height="800"/>
     </constraints>
     <properties>
       <background color="-1"/>
       <font name="JetBrains Mono" size="14" style="1"/>
       <foreground color="-8221551"/>
       <inheritsPopupMenu value="true"/>
-      <minimumSize width="1000" height="800"/>
+      <minimumSize width="1200" height="800"/>
       <nextFocusableComponent value="27dc6"/>
-      <preferredSize width="1000" height="800"/>
+      <preferredSize width="1200" height="800"/>
       <toolTipText value="3333"/>
       <verifyInputWhenFocusTarget value="false"/>
     </properties>
@@ -36,18 +36,11 @@
       <grid id="b2690" binding="bottom" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="South"/>
         <properties>
-          <minimumSize width="150" height="100"/>
+          <minimumSize width="1200" height="100"/>
           <preferredSize width="100" height="100"/>
         </properties>
         <border type="none"/>
-        <children>
-          <component id="476b8" class="javax.swing.JLabel">
-            <constraints border-constraint="Center"/>
-            <properties>
-              <text value="Meeeage......."/>
-            </properties>
-          </component>
-        </children>
+        <children/>
       </grid>
       <grid id="37331" binding="Left" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="Center"/>
@@ -56,7 +49,10 @@
         <children>
           <splitpane id="76c12" binding="splitPane">
             <constraints border-constraint="Center"/>
-            <properties/>
+            <properties>
+              <dividerLocation value="150"/>
+              <dividerSize value="3"/>
+            </properties>
             <border type="empty"/>
             <children>
               <grid id="83eab" binding="center" layout-manager="BorderLayout" hgap="0" vgap="0">
@@ -91,8 +87,8 @@
       <grid id="395b9" binding="Right" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="East"/>
         <properties>
-          <minimumSize width="200" height="49"/>
-          <preferredSize width="200" height="49"/>
+          <minimumSize width="160" height="49"/>
+          <preferredSize width="160" height="49"/>
         </properties>
         <border type="none"/>
         <children>
