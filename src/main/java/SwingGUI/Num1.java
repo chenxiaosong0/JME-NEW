@@ -47,12 +47,10 @@ public class Num1 extends SimpleApplication {
     private MenuItem open, project, set, insert, save;
     final private static CountDownLatch panelsAreReady = new CountDownLatch(1);
     private static Num1 app = new Num1();
-    private static AwtPanel panel, panel2;
-    private static int panelsClosed = 0;
+    private static AwtPanel panel;
 
     public static void main(String[] args) {
         Logger.getLogger("com.jme3").setLevel(Level.WARNING);
-//        app = new Num1();
         app.setShowSettings(false);
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(AwtPanelsContext.class);
@@ -64,21 +62,12 @@ public class Num1 extends SimpleApplication {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException exception) {
-                    return;
-                }
-
                 final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
                 System.out.println(ctx);
                 panel = ctx.createPanel(PaintMode.Accelerated);
                 panel.setPreferredSize(new Dimension(400, 300));
                 ctx.setInputSource(panel);
-//                panel2 = ctx.createPanel(PaintMode.Accelerated);
-//                panel2.setPreferredSize(new Dimension(400, 300));
                 createWindowForPanel(panel, 300);
-//                createWindowForPanel(panel2, 700);
                 panelsAreReady.countDown();
             }
         });
@@ -114,12 +103,12 @@ public class Num1 extends SimpleApplication {
         bottom.setBackground(Color.LIGHT_GRAY);
         bottom.add(button);
         center.add(label);
+        app.action();
     }
 
     //创建jframe窗口
     private static void createWindowForPanel(AwtPanel panel, int location) {
         JFrame frame = new JFrame("Num1");
-//        Num1 num1 = new Num1();
         frame.setContentPane(app.start);
         frame.setLocation(400, 200);
         frame.setResizable(true);
@@ -127,10 +116,9 @@ public class Num1 extends SimpleApplication {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();//自适应
         app.createUIComponents(frame);
-        app.action();
         frame.setVisible(true);
-//        frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(panel, BorderLayout.CENTER);
+
+        frame.add(panel, BorderLayout.CENTER);
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
@@ -139,7 +127,6 @@ public class Num1 extends SimpleApplication {
             }
         });
         frame.pack();
-        frame.setLocation(location, Toolkit.getDefaultToolkit().getScreenSize().height);
         frame.setVisible(true);
     }
 
@@ -150,7 +137,6 @@ public class Num1 extends SimpleApplication {
         Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//        mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         geom.setMaterial(mat);
         rootNode.attachChild(geom);
         /*
