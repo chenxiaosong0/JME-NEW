@@ -26,7 +26,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
-    private static final String appClass = "SwingGUI/TestRenderToTexture.java";
+    private static final String appClass = "SwingGUI.TestRenderToTexture.java";
 
     private static void createTabs(){
         tabbedPane = new JTabbedPane();
