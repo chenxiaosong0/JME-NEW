@@ -1,6 +1,5 @@
 package AnimationTest;
 
-import Control.MotionControl;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;

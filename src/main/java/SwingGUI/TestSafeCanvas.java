@@ -3,7 +3,7 @@ package SwingGUI;
 /**
  * @author xiaosongChen
  * @create 2022-11-15 22:34
- * @description :将jme的画布添加进jframe画布中
+ * @description :将jme的画布添加进jframe画布中，添加后又删除画布，随后又添加画布
  */
 
 import com.jme3.app.SimpleApplication;
@@ -41,8 +41,6 @@ public class TestSafeCanvas extends SimpleApplication {
         JmeCanvasContext context = (JmeCanvasContext) app.getContext();
         Canvas canvas = context.getCanvas();
         canvas.setSize(settings.getWidth(), settings.getHeight());
-
-
 
         Thread.sleep(3000);
 

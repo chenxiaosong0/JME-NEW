@@ -1,10 +1,15 @@
-package Filter;
+package Collision;
+
+/**
+ * @author xiaosongChen
+ * @create 2022-11-17 9:40
+ * @description :案例HelloPicking中要用到的类
+ */
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.plugins.FileLocator;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
@@ -19,11 +24,13 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 
 /**
- * @author xiaosongChen
- * @create 2022-11-12 20:28
- * @description :
+ * 这是一个测试用场景
+ *
+ * @author yanmaoyuan
+ *
  */
 public class CubeAppState extends BaseAppState {
 
@@ -41,11 +48,9 @@ public class CubeAppState extends BaseAppState {
 
         this.assetManager = app.getAssetManager();
 
-        FileLocator locator = new FileLocator();
-        locator.setRootPath("D:\\develope_space\\study_space\\JME-NEW\\src\\main\\resources\\Textures\\Terrain\\Pond");
         // 创造地板
-//        Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
+
         Quad quad = new Quad(200, 200);
         quad.scaleTextureCoordinates(new Vector2f(20, 20));
         Geometry geom = new Geometry("Floor", quad);
@@ -53,19 +58,20 @@ public class CubeAppState extends BaseAppState {
         geom.rotate(-FastMath.HALF_PI, 0, 0);
         rootNode.attachChild(geom);
 
+        // 创造立柱
         float scalar = 20;
         float side = 3f;
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
-                geom = new Geometry("Cube", new Box(side, side*2, side));
+                geom = new Geometry("Cube[" + x + "," + y + "]", new Box(side, side * 2, side));
                 geom.setMaterial(getMaterial(new ColorRGBA(1 - x / 8f, y / 8f, 1f, 1f)));
-                geom.move((x + 1) * scalar, side*2, -(y + 1) * scalar);
+                geom.move((x + 1) * scalar, side * 2, -(y + 1) * scalar);
                 rootNode.attachChild(geom);
             }
         }
 
-        // 天空
-        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap);
+        // 加载天空
+        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
         sky.setLocalScale(350);
         rootNode.attachChild(sky);
 
@@ -78,10 +84,16 @@ public class CubeAppState extends BaseAppState {
         ambient.setColor(new ColorRGBA(0.4f, 0.4f, 0.4f, 1f));
 
         point = new PointLight();
+        point.setColor(ColorRGBA.LightGray);
         point.setPosition(new Vector3f(100, 200, 100));
         point.setRadius(1000);
     }
 
+    /**
+     * 根据输入的颜色，生成一个感光材质。
+     * @param color
+     * @return
+     */
     private Material getMaterial(ColorRGBA color) {
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setColor("Diffuse", color);
@@ -93,6 +105,18 @@ public class CubeAppState extends BaseAppState {
         return mat;
     }
 
+    /**
+     * 获得CubeAppState的场景根节点。
+     * @return
+     */
+    public Node getRootNode() {
+        return rootNode;
+    }
+
+    /**
+     * 获得CubeAppState中的阳光方向。
+     * @return
+     */
     public Vector3f getSunDirection() {
         return sunDirection;
     }
@@ -122,3 +146,4 @@ public class CubeAppState extends BaseAppState {
     }
 
 }
+

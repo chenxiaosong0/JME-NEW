@@ -50,7 +50,7 @@ public class Num1 extends SimpleApplication {
     private static AwtPanel panel;
 
     public static void main(String[] args) {
-        Logger.getLogger("com.jme3").setLevel(Level.WARNING);
+        Logger.getLogger(Num1.class.getName()).setLevel(Level.WARNING);//添加记录器并指定日志级别
         app.setShowSettings(false);
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(AwtPanelsContext.class);
