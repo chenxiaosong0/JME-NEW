@@ -82,7 +82,6 @@ public class SwingJmeTest extends JFrame {
         left.setBackground(Color.red);
         splitPane.setLeftComponent(left);
 
-
         JPanel jPanel = new JPanel(new BorderLayout());
         Canvas canvas = new Canvas();
         try {

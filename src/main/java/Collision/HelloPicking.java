@@ -99,9 +99,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         float x = (cam.getWidth() - text.getLineWidth()) * 0.5f;
         float y = (cam.getHeight() + text.getLineHeight()) * 0.5f;
         text.setLocalTranslation(x, y, 0);
-
         guiNode.attachChild(text);
-
         return text;
     }
 
@@ -113,7 +111,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     private Spatial makeFlag() {
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Green);
-        mat.getAdditionalRenderState().setWireframe(true);
+//        mat.getAdditionalRenderState().setWireframe(true);
 
         Geometry geom = new Geometry("flag", new Sphere(8, 8, 1));
         geom.setMaterial(mat);
@@ -148,7 +146,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
      */
     private void pick() {
 
-        Ray ray = updateRay();
+        Ray ray =  updateRay();
         CollisionResults results = new CollisionResults();
 
         // rootNode.collideWith(ray, results);// 碰撞检测
@@ -169,11 +167,13 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             flag.setLocalTranslation(position);
 
             if (flag.getParent() == null) {
+                System.out.println("flag.Parent is null");
                 rootNode.attachChild(flag);
             }
         } else {
             // 移除标记
             if (flag.getParent() != null) {
+                System.out.println("flagParent: " +flag.getParent().toString());
                 flag.removeFromParent();
             }
         }
@@ -202,7 +202,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
             // 计算方向
             Vector3f dir = worldCoord.subtract(cam.getLocation());
-            dir.normalizeLocal();
+            dir.normalizeLocal();//将向量规范化为长度=1，并返回(修改后的)当前实例。如果向量的长度为0，则它不变。
 
             ray.setDirection(dir);
         }

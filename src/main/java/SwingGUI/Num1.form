@@ -50,6 +50,7 @@
           <splitpane id="76c12" binding="splitPane">
             <constraints border-constraint="Center"/>
             <properties>
+              <continuousLayout value="true"/>
               <dividerLocation value="150"/>
               <dividerSize value="3"/>
             </properties>

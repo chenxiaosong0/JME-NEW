@@ -71,7 +71,7 @@ public class CubeAppState extends BaseAppState {
         }
 
         // 加载天空
-        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
+        Spatial sky = SkyFactory.createSky(assetManager, "scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
         sky.setLocalScale(350);
         rootNode.attachChild(sky);
 

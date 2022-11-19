@@ -55,7 +55,7 @@ public class Num1 extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(AwtPanelsContext.class);
         app.setPauseOnLostFocus(false);
-//        settings.setFrameRate(60);
+//        settings.setFrameRate(-1);
         app.setSettings(settings);
         app.start();
 
@@ -70,10 +70,11 @@ public class Num1 extends SimpleApplication {
                 }
                 final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
                 panel = ctx.createPanel(PaintMode.Accelerated);
-                panel.setPreferredSize(new Dimension(app.getCenter().getWidth(), app.getCenter().getHeight()));
-                ctx.setInputSource(panel);
-
-                createWindowForPanel(panel, 300);
+//                panel = ctx.createPanel(PaintMode.OnRequest);//画面不响应，但刷新仍闪屏
+//                panel = ctx.createPanel(PaintMode.Repaint);//jme画布闪屏刷新
+//                panel.setPreferredSize(new Dimension(app.getCenter().getWidth(), app.getCenter().getHeight()));
+                ctx.setInputSource(panel);//获取鼠标等监听操作
+                createWindowForPanel(panel);
                 panelsAreReady.countDown();
             }
         });
@@ -111,7 +112,7 @@ public class Num1 extends SimpleApplication {
     }
 
     //创建jframe窗口
-    private static void createWindowForPanel(AwtPanel panel, int location) {
+    private static void createWindowForPanel(AwtPanel panel) {
         JFrame frame = new JFrame("Num1");
         frame.setContentPane(app.start);
         frame.setLocation(400, 200);
@@ -249,6 +250,7 @@ public class Num1 extends SimpleApplication {
         Left.setLayout(new BorderLayout(0, 0));
         start.add(Left, BorderLayout.CENTER);
         splitPane = new JSplitPane();
+        splitPane.setContinuousLayout(true);
         splitPane.setDividerLocation(150);
         splitPane.setDividerSize(3);
         Left.add(splitPane, BorderLayout.CENTER);
