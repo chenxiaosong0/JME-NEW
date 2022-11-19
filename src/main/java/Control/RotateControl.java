@@ -34,6 +34,9 @@ public class RotateControl implements Control {
         this.rotateSpeed = rotateSpeed;
     }
 
+    public RotateControl() {
+    }
+
     @Override
     public Control cloneForSpatial(Spatial spatial) {
         RotateControl c = new RotateControl(rotateSpeed);

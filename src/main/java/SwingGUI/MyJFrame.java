@@ -115,7 +115,6 @@ public class MyJFrame extends SimpleApplication {
         frame.setContentPane(app.start);
         frame.setLocation(400, 200);
         frame.setResizable(true);
-//        frame.setSize(1000, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();//自适应
         app.createUIComponents(frame);
@@ -124,8 +123,8 @@ public class MyJFrame extends SimpleApplication {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                app.stop();
                 System.out.println("关闭窗口");
+                app.stop();
             }
         });
     }
