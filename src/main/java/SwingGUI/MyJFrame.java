@@ -1,5 +1,17 @@
 package SwingGUI;
 
+import Collision.CubeAppState;
+import com.jme3.app.DebugKeysAppState;
+import com.jme3.app.FlyCamAppState;
+import com.jme3.app.SimpleApplication;
+import com.jme3.material.TechniqueDef;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.system.AppSettings;
+import com.jme3.system.awt.AwtPanel;
+import com.jme3.system.awt.AwtPanelsContext;
+import com.jme3.system.awt.PaintMode;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
@@ -7,14 +19,20 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * @author xiaosongChen
  * @create 2022-11-10 20:45
  * @description :Swing
  */
-public class MyJFrame {
+
+public class MyJFrame extends SimpleApplication {
     private JPanel start;
     private JTree tree1;
     private JPanel bottom;
@@ -29,26 +47,43 @@ public class MyJFrame {
     private MenuBar menuBar;
     private Menu file, New;
     private MenuItem open, project, set, insert, save;
+    final private static CountDownLatch panelsAreReady = new CountDownLatch(1);
+    private static MyJFrame app = new MyJFrame();
+    private static AwtPanel panel;
 
     public static void main(String[] args) {
+        Logger.getLogger(Num1.class.getName()).setLevel(Level.WARNING);//添加记录器并指定日志级别
+        app.setShowSettings(false);
+        AppSettings settings = new AppSettings(true);
+        settings.setCustomRenderer(AwtPanelsContext.class);
+        app.setPauseOnLostFocus(false);
+//        settings.setFrameRate(-1);
+        app.setSettings(settings);
+        app.start();
 
-        JFrame frame = new JFrame("Num1");
-        MyJFrame num1 = new MyJFrame();
-        frame.setContentPane(num1.start);
-        frame.setLocation(400, 200);
-        frame.setResizable(true);
-        frame.setSize(1000, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();//自适应
-
-        num1.createUIComponents(frame);
-        num1.action();
-        frame.setVisible(true);
-
+        // 在处理完所有挂起的AWT事件后发生。当应用程序线程需要更新GUI时，应该使用此方法。
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException exception) {
+                    return;
+                }
+                final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
+                panel = ctx.createPanel(PaintMode.Accelerated);
+//                panel = ctx.createPanel(PaintMode.OnRequest);//画面不响应，但刷新仍闪屏
+//                panel = ctx.createPanel(PaintMode.Repaint);//jme画布闪屏刷新
+//                panel.setPreferredSize(new Dimension(app.getCenter().getWidth(), app.getCenter().getHeight()));
+                ctx.setInputSource(panel);//获取鼠标等监听操作
+                createWindowForPanel(panel);
+                panelsAreReady.countDown();
+            }
+        });
     }
 
     private void createUIComponents(JFrame frame) {
-
+        // TODO: place custom component creation code here
         menuBar = new MenuBar();
         file = new Menu("File");
         open = new MenuItem("Open");
@@ -65,21 +100,63 @@ public class MyJFrame {
         menuBar.add(file);
         menuBar.add(New);
         frame.setMenuBar(menuBar);
-
-        Label label = new Label("This is  Center");
         button = new JButton("Click");
         center.setBackground(Color.lightGray);
         Top.setBackground(Color.white);
         tree1.setFont(new Font("JetBrains Mono", Font.BOLD, 14));
         bottom.setBackground(Color.LIGHT_GRAY);
-
         bottom.add(button);
-        center.add(label);
-
+        app.action();
     }
 
-    private void createUIComponents() {
+    //创建jframe窗口
+    private static void createWindowForPanel(AwtPanel panel) {
+        JFrame frame = new JFrame("Num1");
+        frame.setContentPane(app.start);
+        frame.setLocation(400, 200);
+        frame.setResizable(true);
+//        frame.setSize(1000, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();//自适应
+        app.createUIComponents(frame);
+        app.addAWTtoCenter(panel);//将jme的AWT画布添加进JPanel中
+        frame.setVisible(true);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                app.stop();
+                System.out.println("关闭窗口");
+            }
+        });
+    }
 
+    private void addAWTtoCenter(AwtPanel panel) {
+        center.add(panel);
+    }
+
+    //jme的画面
+    @Override
+    public void simpleInitApp() {
+        flyCam.setDragToRotate(true);
+        flyCam.setMoveSpeed(20f);
+        cam.setLocation(new Vector3f(89.0993f, 10.044929f, -86.18647f));
+        cam.setRotation(new Quaternion(0.063343525f, 0.18075047f, -0.01166729f, 0.9814177f));
+
+        // 设置灯光渲染模式为单通道，这样更加明亮。
+        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
+        renderManager.setSinglePassLightBatchSize(2);
+//        Node cubeSceneNode = stateManager.getState(CubeAppState.class).getRootNode();
+
+        /*
+         * Wait until  AWT panels are ready.
+         */
+        try {
+            panelsAreReady.await();
+        } catch (InterruptedException exception) {
+            throw new RuntimeException("Interrupted while waiting for panels", exception);
+        }
+        panel.attachTo(false, viewPort);//true窗口出现加载混乱
+        guiViewPort.setClearFlags(true, true, true);
     }
 
     //触发事件
@@ -122,8 +199,9 @@ public class MyJFrame {
 
     }
 
+    //获取当前系统界面格式并同步
     {
-        try {//获取当前系统界面格式并同步
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                  | UnsupportedLookAndFeelException e) {
@@ -132,8 +210,8 @@ public class MyJFrame {
         }
     }
 
-
     public MyJFrame() {
+        super(new FlyCamAppState(), new DebugKeysAppState(), new CubeAppState());//添加了场景
         $$$setupUI$$$();
     }
 
@@ -152,8 +230,8 @@ public class MyJFrame {
         if (startFont != null) start.setFont(startFont);
         start.setForeground(new Color(-8221551));
         start.setInheritsPopupMenu(true);
-        start.setMinimumSize(new Dimension(1000, 800));
-        start.setPreferredSize(new Dimension(1000, 800));
+        start.setMinimumSize(new Dimension(1200, 800));
+        start.setPreferredSize(new Dimension(1200, 800));
         start.setToolTipText("3333");
         start.setVerifyInputWhenFocusTarget(false);
         start.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.BELOW_TOP, this.$$$getFont$$$(null, -1, -1, start.getFont()), new Color(-4473925)));
@@ -166,16 +244,16 @@ public class MyJFrame {
         Top.add(button1, BorderLayout.WEST);
         bottom = new JPanel();
         bottom.setLayout(new BorderLayout(0, 0));
-        bottom.setMinimumSize(new Dimension(150, 100));
+        bottom.setMinimumSize(new Dimension(1200, 100));
         bottom.setPreferredSize(new Dimension(100, 100));
         start.add(bottom, BorderLayout.SOUTH);
-        final JLabel label1 = new JLabel();
-        label1.setText("Meeeage.......");
-        bottom.add(label1, BorderLayout.CENTER);
         Left = new JPanel();
         Left.setLayout(new BorderLayout(0, 0));
         start.add(Left, BorderLayout.CENTER);
         splitPane = new JSplitPane();
+        splitPane.setContinuousLayout(true);
+        splitPane.setDividerLocation(150);
+        splitPane.setDividerSize(3);
         Left.add(splitPane, BorderLayout.CENTER);
         splitPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         center = new JPanel();
@@ -191,22 +269,22 @@ public class MyJFrame {
         splitPane.setLeftComponent(tree1);
         Right = new JPanel();
         Right.setLayout(new BorderLayout(0, 0));
-        Right.setMinimumSize(new Dimension(200, 49));
-        Right.setPreferredSize(new Dimension(200, 49));
+        Right.setMinimumSize(new Dimension(160, 49));
+        Right.setPreferredSize(new Dimension(160, 49));
         start.add(Right, BorderLayout.EAST);
         num1 = new JScrollPane();
         num1.setPreferredSize(new Dimension(52, 20));
         Right.add(num1, BorderLayout.CENTER);
-        final JLabel label2 = new JLabel();
-        label2.setText("message");
-        num1.setViewportView(label2);
+        final JLabel label1 = new JLabel();
+        label1.setText("message");
+        num1.setViewportView(label1);
         num2 = new JScrollPane();
         num2.setMinimumSize(new Dimension(14, 200));
         num2.setPreferredSize(new Dimension(31, 300));
         Right.add(num2, BorderLayout.SOUTH);
-        final JLabel label3 = new JLabel();
-        label3.setText("Label");
-        num2.setViewportView(label3);
+        final JLabel label2 = new JLabel();
+        label2.setText("Label");
+        num2.setViewportView(label2);
         start.setNextFocusableComponent(start);
     }
 
