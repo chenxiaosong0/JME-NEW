@@ -1,10 +1,12 @@
 package Collision;
 
-import AppState.AxisAppState;
-import Control.FloatControl;
-import Control.RotateControl;
+/**
+ * @author xiaosongChen
+ * @create 2022-11-19 15:52
+ * @description :使用BoundingSphere来替换物体原本的包围盒，并使用WireSphere来显示BoundingSpehre的形态。
+ */
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -13,34 +15,33 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.debug.WireBox;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.debug.WireSphere;
 import com.jme3.scene.shape.Cylinder;
-import com.jme3.system.AppSettings;
+import AppState.AxisAppState;
+import Control.FloatControl;
+import Control.RotateControl;
 
 /**
- * @author xiaosongChen
- * @create 2022-11-19 11:17
- * @description :演示轴对齐包围盒（Axis Align Bounding Box）
+ * 演示包围球（Bounding Sphere）
+ *
+ * @author yanmaoyuan
+ *
  */
-public class HelloAABB extends SimpleApplication {
+public class HelloBoundingSphere extends SimpleApplication {
 
     private Geometry debug;
     private Geometry cylinder;
-    private static HelloAABB helloAABB = new HelloAABB();
 
     @Override
     public void simpleInitApp() {
         // 初始化摄像机
-        flyCam.setDragToRotate(true);
-        AppSettings appSettings = new AppSettings(true);
-        helloAABB.setShowSettings(false);
-        helloAABB.setPauseOnLostFocus(false);
         cam.setLocation(new Vector3f(4.5114727f, 6.176994f, 13.277485f));
         cam.setRotation(new Quaternion(-0.038325474f, 0.96150225f, -0.20146479f, -0.18291113f));
         flyCam.setMoveSpeed(10);
 
         viewPort.setBackgroundColor(ColorRGBA.LightGray);
-        helloAABB.setSettings(appSettings);
+
         // 参考坐标系
         stateManager.attach(new AxisAppState());
 
@@ -52,20 +53,24 @@ public class HelloAABB extends SimpleApplication {
         mat.setFloat("Shininess", 24);
         mat.setBoolean("UseMaterialColors", true);
 
-        cylinder = new Geometry("cylinder", new Cylinder(2, 36, 1f, 8, true));
+        // 设置网格包围球
+        Mesh mesh = new Cylinder(2, 36, 1f, 8, true);
+        mesh.setBound(new BoundingSphere());
+        mesh.updateBound();
+
+        cylinder = new Geometry("cylinder", mesh);
         cylinder.setMaterial(mat);
         // 让圆柱体运动，这样才能看到包围盒的变化。
-        cylinder.addControl(new RotateControl(cylinder, FastMath.PI));//旋转运动
-        cylinder.addControl(new FloatControl(2, 2));//上下运动
+        cylinder.addControl(new RotateControl(cylinder, FastMath.PI));
+        cylinder.addControl(new FloatControl(2, 2));
 
-        // 用于显示包围盒
+        // 用于显示包围球
         mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Magenta);
         mat.getAdditionalRenderState().setLineWidth(2);
-//        mat.getAdditionalRenderState().setWireframe(true);//启用线框渲染模式   没什么效果
-        debug = new Geometry("debug", new WireBox(1, 1, 1));
+        mat.getAdditionalRenderState().setWireframe(true);
+        debug = new Geometry("debug", new WireSphere(1));
         debug.setMaterial(mat);
-
 
         rootNode.attachChild(cylinder);
         rootNode.attachChild(debug);
@@ -77,14 +82,15 @@ public class HelloAABB extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        // 根据圆柱体当前的包围盒，更新线框的位置和大小。
-        BoundingBox bbox = (BoundingBox) cylinder.getWorldBound();
-        debug.setLocalScale(bbox.getExtent(null));
-        debug.setLocalTranslation(bbox.getCenter());
+        // 根据圆柱体当前的包围球，更新线框的位置和大小。
+        BoundingSphere bs = (BoundingSphere) cylinder.getWorldBound();
+        debug.setLocalScale(bs.getRadius());//返回边界球的半径
+        debug.setLocalTranslation(bs.getCenter());
     }
 
     public static void main(String[] args) {
-        helloAABB.start();
+        HelloBoundingSphere app = new HelloBoundingSphere();
+        app.start();
     }
 
 }
