@@ -26,6 +26,9 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 /**
  * 这是一个测试用场景
  *
@@ -48,6 +51,11 @@ public class CubeAppState extends BaseAppState {
 
         this.assetManager = app.getAssetManager();
 
+        try {
+            Material asset = assetManager.loadAssetFromStream(null, new FileInputStream("Textures/Terrain/Pond/Pond.j3m"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         // 创造地板
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
 

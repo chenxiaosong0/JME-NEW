@@ -7,7 +7,6 @@ package Collision;
  */
 
 import AppState.AxisAppState;
-import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.collision.CollisionResults;
@@ -32,19 +31,19 @@ public class TestCollisionWith extends SimpleApplication implements RawInputList
     }
 
     public TestCollisionWith() {
-        super(new FlyCamAppState());//,new AxisAppState()
+        super(new AxisAppState());//
     }
 
     @Override
     public void simpleInitApp() {
-        flyCam.setDragToRotate(true);
-        cam.setLocation(new Vector3f(0f, 18f, 22f));
-//        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+//        flyCam.setDragToRotate(true);
+        cam.setLocation(new Vector3f(5f, 18f, 22f));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         cam.setRotation(new Quaternion(-0.038325474f, 0.96150225f, -0.20146479f, -0.18291113f));
 //        flyCam.setMoveSpeed(10);
         viewPort.setBackgroundColor(ColorRGBA.White);
         // 参考坐标系
-        stateManager.attach(new AxisAppState());
+//        stateManager.attach(new AxisAppState());
         // 绿色物体
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Green);
