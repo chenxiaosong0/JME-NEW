@@ -4,6 +4,7 @@ package Collision;
  * @author xiaosongChen
  * @create 2022-11-19 17:42
  * @description :使用碰撞检测，让地板变“坚固”。
+ * 运行这个程序，你将看到一个绿色方块从高处落下，然后在“地板”上弹了几次，然后在“地板”边缘“掉”了出去。
  */
 
 import AppState.AxisAppState;
