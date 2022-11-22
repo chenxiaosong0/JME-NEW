@@ -30,13 +30,16 @@ public class AxisAppState extends BaseAppState implements ActionListener {
     private AssetManager assetManager;
 
     private Node rootNode = new Node("AxisRoot");
+    private Geometry grid;
+
+
 
     @Override
     protected void initialize(Application app) {
         assetManager = app.getAssetManager();
 
         // 网格
-        Geometry grid = new Geometry("Grid", new Grid(21, 21, 1));
+        grid = new Geometry("Grid", new Grid(21, 21, 1));
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.DarkGray);
         grid.setMaterial(mat);
@@ -51,6 +54,20 @@ public class AxisAppState extends BaseAppState implements ActionListener {
         createArrow("Z", Vector3f.UNIT_Z.mult(10), ColorRGBA.Blue);
 
         toggleAxis();
+    }
+    public void AxisSpatial(){
+        grid.removeFromParent();
+    }
+    public Node getRootNode() {
+        return rootNode;
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    public Geometry getGrid() {
+        return grid;
     }
 
     @Override

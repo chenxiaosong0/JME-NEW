@@ -9,9 +9,11 @@ package Collision;
  * 使用空格键来切换这两种模式。
  */
 
+import AppState.AxisAppState;
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
@@ -45,6 +47,8 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     private Spatial cross;
     // 拾取标记
     private Spatial flag;
+    private CubeAppState cubeAppState = new CubeAppState();
+    private AxisAppState axisAppState = new AxisAppState();
 
     // 射线
     private Ray ray;
@@ -56,20 +60,27 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     }
 
     public HelloPicking() {
-        super(new FlyCamAppState(), new DebugKeysAppState(), new CubeAppState());
+        super(new FlyCamAppState(), new DebugKeysAppState());
 
         // 初始化射线
         ray = new Ray();
         // 设置检测最远距离，可将射线变为线段。
-        // ray.setLimit(500);
+         ray.setLimit(500);
     }
 
     @Override
     public void simpleInitApp() {
+
         // 初始化摄像机
         flyCam.setMoveSpeed(20f);
         cam.setLocation(new Vector3f(89.0993f, 10.044929f, -86.18647f));
         cam.setRotation(new Quaternion(0.063343525f, 0.18075047f, -0.01166729f, 0.9814177f));
+        Node AxisNode = stateManager.getState(AxisAppState.class).getRootNode();
+        stateManager.attach(cubeAppState);
+        axisAppState.AxisSpatial();
+        stateManager.attach(axisAppState);
+
+//        AxisNode.detachChild(AxisNode.getChild("grid"));
 
         // 设置灯光渲染模式为单通道，这样更加明亮。
         renderManager.setPreferredLightMode(LightMode.SinglePass);
@@ -80,7 +91,6 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
         // 做个拾取标记
         flag = makeFlag();
-
         // 用户输入
         inputManager.addMapping(PICKING, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping(CHANGE_CAM_MODE, new KeyTrigger(KeyInput.KEY_SPACE));
@@ -151,8 +161,11 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
         // rootNode.collideWith(ray, results);// 碰撞检测
 
-        Node cubeSceneNode = stateManager.getState(CubeAppState.class).getRootNode();
-        cubeSceneNode.collideWith(ray, results);// 碰撞检测
+        Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();
+        Spatial pickable = cubeSceneNode.getChild("pickable");
+//        System.out.println("cubeSceneNode:  "  + cubeSceneNode.getChildren());
+// cubeSceneNode:  [Floor (Geometry), pickable (Node), Sky (Geometry)]
+        pickable.collideWith(ray, results);// 只和地板上的几何体进行碰撞检测
 
         // 打印检测结果
         print(results);
@@ -163,13 +176,14 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         if (results.size() > 0) {
 
             // 放置拾取标记
-            Vector3f position = results.getClosestCollision().getContactPoint();
-            flag.setLocalTranslation(position);
+//            Vector3f position = results.getClosestCollision().getContactPoint();
+            Geometry closetGeom = results.getClosestCollision().getGeometry();
+            BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
+            closetGeom.getModelBound();
+            System.out.println( "bound.getCenter(): " +bound.getCenter());//(0.0, 0.0, 0.0)
+            flag.setLocalTranslation(bound.getCenter());
+            rootNode.attachChild(flag);
 
-            if (flag.getParent() == null) {
-                System.out.println("flag.Parent is null");
-                rootNode.attachChild(flag);
-            }
         } else {
             // 移除标记
             if (flag.getParent() != null) {
@@ -228,16 +242,19 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             for (int i = 0; i < results.size(); i++) {
                 CollisionResult result = results.getCollision(i);
 
-                float dist = result.getDistance();
-                Vector3f point = result.getContactPoint();
-                Vector3f normal = result.getContactNormal();
-                Geometry geom = result.getGeometry();
+                float dist = result.getDistance();//距离
+                Vector3f point = result.getContactPoint();//交点
+                Vector3f normal = result.getContactNormal();//交点法线
+                Geometry geom = result.getGeometry();//返回相交的几何体
 
                 System.out.printf("序号：%d, 距离：%.2f, 物体名称：%s, 交点：%s, 交点法线：%s\n", i, dist, geom.getName(), point, normal);
             }
 
             // 离射线原点最近的交点
             Vector3f closest = results.getClosestCollision().getContactPoint();
+            //最近的点的物体变色
+            results.getClosestCollision().getGeometry().getMaterial().setColor("Diffuse",ColorRGBA.Red.mult(0.2f));
+
             // 离射线原点最远的交点
             Vector3f farthest = results.getFarthestCollision().getContactPoint();
 

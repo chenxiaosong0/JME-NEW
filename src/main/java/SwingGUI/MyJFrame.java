@@ -72,9 +72,6 @@ public class MyJFrame extends SimpleApplication {
                 }
                 final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
                 panel = ctx.createPanel(PaintMode.Accelerated);
-//                panel = ctx.createPanel(PaintMode.OnRequest);//画面不响应，但刷新仍闪屏
-//                panel = ctx.createPanel(PaintMode.Repaint);//jme画布闪屏刷新
-//                panel.setPreferredSize(new Dimension(app.getCenter().getWidth(), app.getCenter().getHeight()));
                 ctx.setInputSource(panel);//获取鼠标等监听操作
                 createWindowForPanel(panel);
                 panelsAreReady.countDown();

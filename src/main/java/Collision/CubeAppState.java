@@ -14,10 +14,12 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -25,9 +27,6 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 /**
  * 这是一个测试用场景
@@ -45,17 +44,13 @@ public class CubeAppState extends BaseAppState {
     private Vector3f sunDirection = new Vector3f(-0.65093255f, -0.11788898f, 0.7499261f);
 
     private AssetManager assetManager;
+    private Node pick = new Node("pickable");
 
     @Override
     protected void initialize(Application app) {
 
         this.assetManager = app.getAssetManager();
 
-        try {
-            Material asset = assetManager.loadAssetFromStream(null, new FileInputStream("Textures/Terrain/Pond/Pond.j3m"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
         // 创造地板
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
 
@@ -72,11 +67,15 @@ public class CubeAppState extends BaseAppState {
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
                 geom = new Geometry("Cube[" + x + "," + y + "]", new Box(side, side * 2, side));
-                geom.setMaterial(getMaterial(new ColorRGBA(1 - x / 8f, y / 8f, 1f, 1f)));
+                geom.setMaterial(getMaterial(new ColorRGBA(1 - x / 8f, y / 8f, 1f, 0.2f)));
+                geom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+                geom.setQueueBucket(RenderQueue.Bucket.Transparent);
                 geom.move((x + 1) * scalar, side * 2, -(y + 1) * scalar);
-                rootNode.attachChild(geom);
+                pick.attachChild(geom);
             }
         }
+
+        rootNode.attachChild(pick);
 
         // 加载天空
         Spatial sky = SkyFactory.createSky(assetManager, "scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
@@ -141,6 +140,7 @@ public class CubeAppState extends BaseAppState {
         app.getRootNode().addLight(ambient);
         app.getRootNode().addLight(point);
         app.getRootNode().addLight(sun);
+
     }
 
     @Override
