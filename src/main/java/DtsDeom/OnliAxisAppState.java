@@ -1,4 +1,4 @@
-package AppState;
+package DtsDeom;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -15,14 +15,14 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.Arrow;
-import com.jme3.scene.debug.Grid;
+import com.jme3.scene.shape.Sphere;
 
 /**
  * @author xiaosongChen
  * @create 2022-10-21 15:51
  * @description :坐标系
  */
-public class AxisAppState extends BaseAppState implements ActionListener {
+public class OnliAxisAppState extends BaseAppState implements ActionListener {
 
 
     public final static String TOGGLE_AXIS = "toggle_axis";
@@ -44,21 +44,28 @@ public class AxisAppState extends BaseAppState implements ActionListener {
         assetManager = app.getAssetManager();
 
         // 网格
-        grid = new Geometry("Grid", new Grid(21, 21, 1));
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.DarkGray);
-        grid.setMaterial(mat);
-        grid.center().move(0, 0, 0);
-        grid.setShadowMode(RenderQueue.ShadowMode.Off);
+//        grid = new Geometry("Grid", new Grid(21, 21, 1));
+//        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        mat.setColor("Color", ColorRGBA.DarkGray);
+//        grid.setMaterial(mat);
+//        grid.center().move(0, 0, 0);
+//        grid.setShadowMode(RenderQueue.ShadowMode.Off);
+//        rootNode.attachChild(grid);
+        //坐标轴-原点
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setColor("Color", ColorRGBA.Black);
+//        mat.getAdditionalRenderState().setWireframe(true);
 
-        rootNode.attachChild(grid);
+        Geometry geom = new Geometry("flag", new Sphere(3, 3, 0.1f));
+        geom.setMaterial(material);
+        AxisNode.attachChild(geom);
 
         // 坐标
         createArrow("X", Vector3f.UNIT_X.mult(10), ColorRGBA.Red);
         createArrow("Y", Vector3f.UNIT_Y.mult(10), ColorRGBA.Green);
         createArrow("Z", Vector3f.UNIT_Z.mult(10), ColorRGBA.Blue);
         rootNode.attachChild(AxisNode);
-        toggleAxis();
+//        toggleAxis();
     }
     public void AxisSpatial(){
         grid.removeFromParent();

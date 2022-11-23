@@ -9,7 +9,7 @@ package Collision;
  * 使用空格键来切换这两种模式。
  */
 
-import AppState.AxisAppState;
+import DtsDeom.OnliAxisAppState;
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
@@ -48,7 +48,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     // 拾取标记
     private Spatial flag;
     private CubeAppState cubeAppState = new CubeAppState();
-    private AxisAppState axisAppState = new AxisAppState();
+    private OnliAxisAppState axisAppState = new OnliAxisAppState();
 
     // 射线
     private Ray ray;
@@ -73,14 +73,13 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
         // 初始化摄像机
         flyCam.setMoveSpeed(20f);
-        cam.setLocation(new Vector3f(89.0993f, 10.044929f, -86.18647f));
+        cam.setLocation(new Vector3f(89.0993f, 20.044929f, -86.18647f));
         cam.setRotation(new Quaternion(0.063343525f, 0.18075047f, -0.01166729f, 0.9814177f));
-        Node AxisNode = stateManager.getState(AxisAppState.class).getRootNode();
-        stateManager.attach(cubeAppState);
-        axisAppState.AxisSpatial();
-        stateManager.attach(axisAppState);
 
-//        AxisNode.detachChild(AxisNode.getChild("grid"));
+        stateManager.attachAll(cubeAppState,axisAppState);
+
+        stateManager.getState(axisAppState.getClass()).setEnabled(false);//刚开始坐标轴不需要显示
+
 
         // 设置灯光渲染模式为单通道，这样更加明亮。
         renderManager.setPreferredLightMode(LightMode.SinglePass);
@@ -88,7 +87,6 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
         // 做个准星
         cross = makeCross();
-
         // 做个拾取标记
         flag = makeFlag();
         // 用户输入
@@ -122,10 +120,8 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Green);
 //        mat.getAdditionalRenderState().setWireframe(true);
-
         Geometry geom = new Geometry("flag", new Sphere(8, 8, 1));
         geom.setMaterial(mat);
-
         return geom;
     }
 
@@ -162,9 +158,8 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         // rootNode.collideWith(ray, results);// 碰撞检测
 
         Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();
+        Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();
         Spatial pickable = cubeSceneNode.getChild("pickable");
-//        System.out.println("cubeSceneNode:  "  + cubeSceneNode.getChildren());
-// cubeSceneNode:  [Floor (Geometry), pickable (Node), Sky (Geometry)]
         pickable.collideWith(ray, results);// 只和地板上的几何体进行碰撞检测
 
         // 打印检测结果
@@ -179,17 +174,15 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 //            Vector3f position = results.getClosestCollision().getContactPoint();
             Geometry closetGeom = results.getClosestCollision().getGeometry();
             BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
-            closetGeom.getModelBound();
-            System.out.println( "bound.getCenter(): " +bound.getCenter());//(0.0, 0.0, 0.0)
-            flag.setLocalTranslation(bound.getCenter());
-            rootNode.attachChild(flag);
+            //对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
+            AxisNode.setLocalTranslation(bound.getCenter());
+            rootNode.attachChild(AxisNode);
+//            stateManager.getState(axisAppState.getClass()).setEnabled(true);
 
         } else {
             // 移除标记
-            if (flag.getParent() != null) {
-                System.out.println("flagParent: " +flag.getParent().toString());
-                flag.removeFromParent();
-            }
+            AxisNode.removeFromParent();
+//            stateManager.getState(axisAppState.getClass()).setEnabled(false);
         }
     }
 

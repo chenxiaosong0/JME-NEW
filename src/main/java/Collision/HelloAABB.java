@@ -13,6 +13,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.system.AppSettings;
@@ -43,7 +44,7 @@ public class HelloAABB extends SimpleApplication {
         helloAABB.setSettings(appSettings);
         // 参考坐标系
         stateManager.attach(new AxisAppState());
-
+        Node AxisNode = stateManager.getState(AxisAppState.class).getAxisNode();
         // 圆柱体
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setColor("Diffuse", ColorRGBA.Yellow);
