@@ -23,8 +23,10 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.math.*;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -47,6 +49,8 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     private Spatial cross;
     // 拾取标记
     private Spatial flag;
+    //射线检测到最近的几何体
+    private Geometry closetGeom,LastGeom ;;
     private CubeAppState cubeAppState = new CubeAppState();
     private OnliAxisAppState axisAppState = new OnliAxisAppState();
 
@@ -88,7 +92,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         // 做个准星
         cross = makeCross();
         // 做个拾取标记
-        flag = makeFlag();
+//        flag = makeFlag();
         // 用户输入
         inputManager.addMapping(PICKING, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping(CHANGE_CAM_MODE, new KeyTrigger(KeyInput.KEY_SPACE));
@@ -154,9 +158,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 
         Ray ray =  updateRay();
         CollisionResults results = new CollisionResults();
-
         // rootNode.collideWith(ray, results);// 碰撞检测
-
         Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();
         Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();
         Spatial pickable = cubeSceneNode.getChild("pickable");
@@ -169,20 +171,24 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
          * 判断检测结果
          */
         if (results.size() > 0) {
-
             // 放置拾取标记
 //            Vector3f position = results.getClosestCollision().getContactPoint();
-            Geometry closetGeom = results.getClosestCollision().getGeometry();
+            closetGeom = results.getClosestCollision().getGeometry();
             BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
             //对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
             AxisNode.setLocalTranslation(bound.getCenter());
+            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+            closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
+            if (closetGeom != LastGeom && LastGeom != null){
+                LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+            }
             rootNode.attachChild(AxisNode);
-//            stateManager.getState(axisAppState.getClass()).setEnabled(true);
-
+            LastGeom = closetGeom;//保存当前最近的几何体
         } else {
             // 移除标记
+            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//            closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
             AxisNode.removeFromParent();
-//            stateManager.getState(axisAppState.getClass()).setEnabled(false);
         }
     }
 
@@ -246,7 +252,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             // 离射线原点最近的交点
             Vector3f closest = results.getClosestCollision().getContactPoint();
             //最近的点的物体变色
-            results.getClosestCollision().getGeometry().getMaterial().setColor("Diffuse",ColorRGBA.Red.mult(0.2f));
+//            results.getClosestCollision().getGeometry().getMaterial().setColor("Diffuse",ColorRGBA.Red.mult(0.2f));
 
             // 离射线原点最远的交点
             Vector3f farthest = results.getFarthestCollision().getContactPoint();

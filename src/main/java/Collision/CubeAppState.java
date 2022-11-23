@@ -14,12 +14,10 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -67,9 +65,9 @@ public class CubeAppState extends BaseAppState {
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
                 geom = new Geometry("Cube[" + x + "," + y + "]", new Box(side, side * 2, side));
-                geom.setMaterial(getMaterial(new ColorRGBA(1 - x / 8f, y / 8f, 1f, 0.2f)));
-                geom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-                geom.setQueueBucket(RenderQueue.Bucket.Transparent);
+                geom.setMaterial(getMaterial(new ColorRGBA(1 - x / 8f, y / 8f, 1f, 0.8f)));
+//                geom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+//                geom.setQueueBucket(RenderQueue.Bucket.Transparent);
                 geom.move((x + 1) * scalar, side * 2, -(y + 1) * scalar);
                 pick.attachChild(geom);
             }
