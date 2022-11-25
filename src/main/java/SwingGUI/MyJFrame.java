@@ -166,8 +166,7 @@ public class MyJFrame extends SimpleApplication {
                 fileChooser.setMultiSelectionEnabled(false);//设置多选
                 int result = fileChooser.showOpenDialog(null);//显示对话框
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    System.out.println("You chose to open this file: " +
-                            fileChooser.getSelectedFile().getName());
+                    System.out.println("You chose to open this file: " + fileChooser.getSelectedFile().getName());
                 }
             }
         });
@@ -191,8 +190,6 @@ public class MyJFrame extends SimpleApplication {
                 System.out.println("Clicked");
             }
         });
-
-
     }
 
     //获取当前系统界面格式并同步

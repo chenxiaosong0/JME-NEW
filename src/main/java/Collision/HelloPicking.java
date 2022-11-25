@@ -20,6 +20,7 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
@@ -40,19 +41,19 @@ import com.jme3.scene.shape.Sphere;
  */
 public class HelloPicking extends SimpleApplication implements ActionListener {
 
-    // 空格键：切换摄像机模式
-    public final static String CHANGE_CAM_MODE = "change_camera_mode";
-    // 鼠标左键：拾取
-    public final static String PICKING = "pick";
-
+    // 空格键：切换摄像机模式,鼠标左键：拾取
+    public final static String CHANGE_CAM_MODE = "change_camera_mode",PICKING = "pick",CTRL = "ctrl";
+    //
+    private Node ClosestNode = new Node();
+    private boolean ctrl = false;//是否多选
     // 准星
     private Spatial cross;
     // 拾取标记
     private Spatial flag;
     //射线检测到最近的几何体
-    private Geometry closetGeom,LastGeom ;;
-    private CubeAppState cubeAppState = new CubeAppState();
-    private OnliAxisAppState axisAppState = new OnliAxisAppState();
+    private Geometry closetGeom,LastGeom;;
+    private CubeAppState cubeAppState = new CubeAppState();//场景
+    private OnliAxisAppState axisAppState = new OnliAxisAppState();//坐标轴
 
     // 射线
     private Ray ray;
@@ -96,7 +97,9 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         // 用户输入
         inputManager.addMapping(PICKING, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping(CHANGE_CAM_MODE, new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addListener(this, PICKING, CHANGE_CAM_MODE);
+        inputManager.addMapping(CTRL, new KeyTrigger(KeyInput.KEY_LCONTROL));
+        inputManager.addListener(this, PICKING, CHANGE_CAM_MODE,CTRL);
+        inputManager.addListener(new MyAnalogListener(),CTRL);
     }
 
     /**
@@ -132,11 +135,11 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if (isPressed) {
-            if (PICKING.equals(name)) {
-                // 拾取
-                pick();
+            if (CTRL.equals(name)) {
+                ctrl = true;
+            }else if (ctrl == true && PICKING.equals(name)){//多选
+                System.out.println("ctrl + clicked");
             } else if (CHANGE_CAM_MODE.equals(name)) {
-
                 if (flyCam.isDragToRotate()) {
                     // 自由模式
                     flyCam.setDragToRotate(false);
@@ -146,51 +149,83 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
                     flyCam.setDragToRotate(true);
                     cross.removeFromParent();
                 }
+            }else if (PICKING.equals(name) && ctrl == false){//单选
+                // 拾取
+                pick();
             }
         }
-
+        else {
+            if (CTRL.equals(name)){//ctrl已经按下，松开再后复位
+                ctrl = false;
+                System.out.println("ctrl复位");
+            }
+        }
     }
+    private class MyAnalogListener implements AnalogListener{
+        @Override
+        public void onAnalog(String name, float value, float tpf) {
+            if (CTRL.equals(name)){
+
+            }
+        }
+    }
+
 
     /**
      * 使用射线检测，判断离摄像机最近的点。
      */
     private void pick() {
-
         Ray ray =  updateRay();
         CollisionResults results = new CollisionResults();
         // rootNode.collideWith(ray, results);// 碰撞检测
-        Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();
-        Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();
-        Spatial pickable = cubeSceneNode.getChild("pickable");
+        Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();//场景节点
+        Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();//坐标轴节点
+        Node pickable = (Node) cubeSceneNode.getChild("pickable");//场景中要射线检测的节点
         pickable.collideWith(ray, results);// 只和地板上的几何体进行碰撞检测
-
-        // 打印检测结果
-        print(results);
-
-        /**
-         * 判断检测结果
-         */
+        print(results);// 打印检测结果
+        //判断检测结果
         if (results.size() > 0) {
             // 放置拾取标记
 //            Vector3f position = results.getClosestCollision().getContactPoint();
             closetGeom = results.getClosestCollision().getGeometry();
             BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
-            //对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
+            //坐标轴跟新：对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
             AxisNode.setLocalTranslation(bound.getCenter());
-            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);//透明操作
             closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            if (closetGeom != LastGeom && LastGeom != null){
-                LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+            if (closetGeom != LastGeom ){//空选 或 下一个对象
+                ////选中其他物体时取消上一个物体的透明操作
+                if (ctrl == false) {//单选
+                    if (LastGeom != null)  pickable.attachChild(LastGeom);//删除上一个对象
+                    LastGeom = closetGeom;//保存当前最近的几何体
+                    LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                    ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+                }
             }
             rootNode.attachChild(AxisNode);
-            LastGeom = closetGeom;//保存当前最近的几何体
+            rootNode.attachChild(ClosestNode);//将 选中节点 添加进场景
+            System.out.println( "选中节点有：" + ClosestNode.getChildren());
         } else {
             // 移除标记
-            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-//            closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
+//            if (closetGeom != null){
+//                closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//            }
+            if (!ClosestNode.getChildren().isEmpty()) {//对应多选对象取消透明操作
+                for (int i = 0; i < ClosestNode.getChildren().size(); i++) {
+                    Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
+                    System.out.println(closestNodeChild.getName());
+                    closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//                    closestNodeChild.removeFromParent();//从选中节点中移除该i对象
+                    pickable.attachChild(closestNodeChild);//添加回原节点
+                }
+                LastGeom = null;//LastGeom 复位后才能再次选中
+                System.out.println( "删除选中节点对象后有：" + ClosestNode.getChildren());
+            }
             AxisNode.removeFromParent();
+            ClosestNode.removeFromParent();
         }
     }
+
 
     /**
      * 更新射线参数
@@ -260,4 +295,6 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             System.out.printf("最近点：%s, 最远点：%s\n", closest, farthest);
         }
     }
+
+
 }
