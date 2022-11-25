@@ -20,7 +20,6 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
@@ -99,7 +98,6 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         inputManager.addMapping(CHANGE_CAM_MODE, new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping(CTRL, new KeyTrigger(KeyInput.KEY_LCONTROL));
         inputManager.addListener(this, PICKING, CHANGE_CAM_MODE,CTRL);
-        inputManager.addListener(new MyAnalogListener(),CTRL);
     }
 
     /**
@@ -137,9 +135,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
         if (isPressed) {
             if (CTRL.equals(name)) {
                 ctrl = true;
-            }else if (ctrl == true && PICKING.equals(name)){//多选
-                System.out.println("ctrl + clicked");
-            } else if (CHANGE_CAM_MODE.equals(name)) {
+            }else if (CHANGE_CAM_MODE.equals(name)) {
                 if (flyCam.isDragToRotate()) {
                     // 自由模式
                     flyCam.setDragToRotate(false);
@@ -149,7 +145,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
                     flyCam.setDragToRotate(true);
                     cross.removeFromParent();
                 }
-            }else if (PICKING.equals(name) && ctrl == false){//单选
+            }else if (PICKING.equals(name) ){//单选
                 // 拾取
                 pick();
             }
@@ -161,14 +157,7 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             }
         }
     }
-    private class MyAnalogListener implements AnalogListener{
-        @Override
-        public void onAnalog(String name, float value, float tpf) {
-            if (CTRL.equals(name)){
 
-            }
-        }
-    }
 
 
     /**
@@ -196,11 +185,13 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
             if (closetGeom != LastGeom ){//空选 或 下一个对象
                 ////选中其他物体时取消上一个物体的透明操作
                 if (ctrl == false) {//单选
-                    if (LastGeom != null)  pickable.attachChild(LastGeom);//删除上一个对象
-                    LastGeom = closetGeom;//保存当前最近的几何体
-                    LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-                    ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+                    if (LastGeom != null) {
+                        LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                        pickable.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
+                    }
                 }
+                LastGeom = closetGeom;//保存当前最近的几何体
+                ClosestNode.attachChild(LastGeom);//添加选中对象进节点
             }
             rootNode.attachChild(AxisNode);
             rootNode.attachChild(ClosestNode);//将 选中节点 添加进场景
@@ -210,16 +201,13 @@ public class HelloPicking extends SimpleApplication implements ActionListener {
 //            if (closetGeom != null){
 //                closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
 //            }
-            if (!ClosestNode.getChildren().isEmpty()) {//对应多选对象取消透明操作
-                for (int i = 0; i < ClosestNode.getChildren().size(); i++) {
-                    Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
-                    System.out.println(closestNodeChild.getName());
-                    closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-//                    closestNodeChild.removeFromParent();//从选中节点中移除该i对象
-                    pickable.attachChild(closestNodeChild);//添加回原节点
-                }
+            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
+                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
+                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
+                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
+                pickable.attachChild(closestNodeChild);//添加回原节点
                 LastGeom = null;//LastGeom 复位后才能再次选中
-                System.out.println( "删除选中节点对象后有：" + ClosestNode.getChildren());
+                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
             }
             AxisNode.removeFromParent();
             ClosestNode.removeFromParent();
