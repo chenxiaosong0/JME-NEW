@@ -8,6 +8,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -36,6 +37,8 @@ public class HelloAABB extends SimpleApplication {
         AppSettings appSettings = new AppSettings(true);
         helloAABB.setShowSettings(false);
         helloAABB.setPauseOnLostFocus(false);
+        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
+        renderManager.setSinglePassLightBatchSize(2);
         cam.setLocation(new Vector3f(4.5114727f, 6.176994f, 13.277485f));
         cam.setRotation(new Quaternion(-0.038325474f, 0.96150225f, -0.20146479f, -0.18291113f));
         flyCam.setMoveSpeed(10);

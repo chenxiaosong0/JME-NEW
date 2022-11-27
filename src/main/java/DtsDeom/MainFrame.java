@@ -4,9 +4,16 @@ import SwingGUI.Num1;
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.debug.Grid;
 import com.jme3.system.AppSettings;
 import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
@@ -51,7 +58,7 @@ public class MainFrame extends SimpleApplication {
     final private static CountDownLatch panelsAreReady = new CountDownLatch(1);
     private static MainFrame app = new MainFrame();
     private static AwtPanel panel;
-
+    private Geometry grid;
     public static void main(String[] args) {
         Logger.getLogger(Num1.class.getName()).setLevel(Level.WARNING);//添加记录器并指定日志级别
         app.setShowSettings(false);
@@ -121,7 +128,6 @@ public class MainFrame extends SimpleApplication {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                System.out.println("关闭窗口");
                 app.stop();
             }
         });
@@ -134,16 +140,29 @@ public class MainFrame extends SimpleApplication {
     //jme的画面
     @Override
     public void simpleInitApp() {
+
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(20f);
-        cam.setLocation(new Vector3f(89.0993f, 10.044929f, -86.18647f));
-        cam.setRotation(new Quaternion(0.063343525f, 0.18075047f, -0.01166729f, 0.9814177f));
-
+        cam.setLocation(new Vector3f(4.5114727f, 6.176994f, 13.277485f));
+        cam.setRotation(new Quaternion(-0.038325474f, 0.96150225f, -0.20146479f, -0.18291113f));
         // 设置灯光渲染模式为单通道，这样更加明亮。
         renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
         renderManager.setSinglePassLightBatchSize(2);
-//        Node cubeSceneNode = stateManager.getState(CubeAppState.class).getRootNode();
+        // 地板网格
+        grid = new Geometry("Grid", new Grid(21, 21, 1));
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.DarkGray);
+        grid.setMaterial(mat);
+        grid.center().move(0, 0, 0);
+        grid.setShadowMode(RenderQueue.ShadowMode.Off);
+        rootNode.attachChild(grid);
+        viewPort.setBackgroundColor(ColorRGBA.LightGray);
 
+        rootNode.addLight(new DirectionalLight(new Vector3f(-1, -2, -3)));
+        rootNode.addLight(new AmbientLight(new ColorRGBA(0.2f, 0.2f, 0.2f, 1f)));
+
+//        stateManager.attach(new CubeAppState());
+        stateManager.attach(new SelcetCombine());
         /*
          * Wait until  AWT panels are ready.
          */

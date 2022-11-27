@@ -33,25 +33,19 @@ import com.jme3.util.SkyFactory.EnvMapType;
  *
  */
 public class CubeAppState extends BaseAppState {
-
     private Node rootNode = new Node("Scene root");
-
     private AmbientLight ambient;
     private PointLight point;
     private DirectionalLight sun;
     private Vector3f sunDirection = new Vector3f(-0.65093255f, -0.11788898f, 0.7499261f);
-
     private AssetManager assetManager;
     private Node pick = new Node("pickable");
-
     @Override
     protected void initialize(Application app) {
-
+        this.setId("CubeAppState_ID");
         this.assetManager = app.getAssetManager();
-
         // 创造地板
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
-
         Quad quad = new Quad(200, 200);
         quad.scaleTextureCoordinates(new Vector2f(20, 20));
         Geometry geom = new Geometry("Floor", quad);
@@ -133,23 +127,18 @@ public class CubeAppState extends BaseAppState {
     @Override
     protected void onEnable() {
         SimpleApplication app = (SimpleApplication) getApplication();
-
         app.getRootNode().attachChild(rootNode);
         app.getRootNode().addLight(ambient);
         app.getRootNode().addLight(point);
         app.getRootNode().addLight(sun);
-
     }
-
     @Override
     protected void onDisable() {
         SimpleApplication app = (SimpleApplication) getApplication();
-
         app.getRootNode().detachChild(rootNode);
         app.getRootNode().removeLight(ambient);
         app.getRootNode().removeLight(point);
         app.getRootNode().removeLight(sun);
     }
-
 }
 
