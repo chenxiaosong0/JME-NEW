@@ -100,7 +100,6 @@ public class OnliAxisAppState extends BaseAppState implements ActionListener {
     @Override
     protected void onDisable() {
         rootNode.removeFromParent();
-
         // 移除按键
         InputManager inputManager = getApplication().getInputManager();
         inputManager.removeListener(this);

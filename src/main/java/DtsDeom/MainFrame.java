@@ -1,5 +1,6 @@
 package DtsDeom;
 
+import Collision.CubeAppState;
 import SwingGUI.Num1;
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
@@ -161,7 +162,7 @@ public class MainFrame extends SimpleApplication {
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -2, -3)));
         rootNode.addLight(new AmbientLight(new ColorRGBA(0.2f, 0.2f, 0.2f, 1f)));
 
-//        stateManager.attach(new CubeAppState());
+        stateManager.attach(new CubeAppState());
         stateManager.attach(new SelcetCombine());
         /*
          * Wait until  AWT panels are ready.

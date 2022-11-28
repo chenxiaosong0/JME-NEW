@@ -5,7 +5,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
@@ -26,6 +26,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,6 +48,7 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
     private Geometry closetGeom,LastGeom;;    //射线检测到最近的几何体
     private  Node AxisNode; //获取主场景中的节点
     private OnliAxisAppState axisAppState = new OnliAxisAppState();//坐标轴
+    private List<Geometry> PickList = new ArrayList<>(),PickLast;
     private List<Spatial> children;
     // 射线
     private Ray ray;
@@ -68,18 +70,17 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
         this.viewPort     = app.getViewPort();
         this.camera       = app.getCamera();
          children = simpleApp.getRootNode().getChildren();//获取根节点中所有的节点
-//        System.out.println(children);
         if (!children.isEmpty()){
             System.out.println(children);
-            for (int i = 0; i < children.size(); i++) {
+            for (int i = 0;  !children.isEmpty(); ) {
                 foegrinNode.attachChild(children.get(i));
              }
             System.out.println( "foegrinNode.getChildren(): " + foegrinNode.getChildren());
         }
-        // 初始化摄像机
-        stateManager.attachAll(axisAppState);//加载坐标系
+        stateManager.attach(axisAppState);//加载坐标系
         stateManager.getState(axisAppState.getClass()).setEnabled(false);//刚开始坐标轴不需要显示
         AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();//坐标轴节点
+        ClosestNode.attachChild(AxisNode);
         // 用户输入
         inputManager.addMapping(PICKING, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping(CHANGE_CAM_MODE, new KeyTrigger(KeyInput.KEY_SPACE));
@@ -114,45 +115,70 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
     private void pick() {
         Ray ray =  updateRay();
         CollisionResults results = new CollisionResults();
-        // rootNode.collideWith(ray, results);// 碰撞检测
-//        Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();//场景节点
-//        Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();//坐标轴节点
-//        Node pickable = (Node) cubeSceneNode.getChild("pickable");//场景中要射线检测的节点
         foegrinNode.collideWith(ray, results);// 外部节点进行碰撞检测
         print(results);// 打印检测结果
         //判断检测结果
         if (results.size() > 0) {
             closetGeom = results.getClosestCollision().getGeometry();
-            BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
-            //坐标轴跟新：对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
-            AxisNode.setLocalTranslation(bound.getCenter());
-            closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);//透明操作
-            closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            if (closetGeom != LastGeom ){//空选 或 下一个对象
-                ////选中其他物体时取消上一个物体的透明操作
-                if (ctrl == false) {//单选
-                    if (LastGeom != null) {
-                        LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-                        foegrinNode.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
+            if (closetGeom.getWorldBound() != null)//坐标轴跟新：对AxisNode节点的位置设置成射线检测到的对象包围体的中心点
+            {
+//                BoundingBox bound = (BoundingBox)closetGeom.getWorldBound();
+                BoundingVolume bound = closetGeom.getWorldBound();
+                AxisNode.setLocalTranslation(bound.getCenter());
+                closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);//透明操作
+                closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
+                if (PickList.isEmpty()){
+                    PickList.add(closetGeom);
+                }else {
+                    for (int i = 0; i < PickList.size(); i++) {
+                        if (closetGeom != PickList.get(i)){
+                            if (ctrl == false){
+                                for (int i1 = 0; i1 < PickList.size(); i1++) {
+                                    PickList.get(i1).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                                    PickList.remove(i);
+                                }
+                            }
+                            PickList.add(closetGeom);
+                        }else {
+                            System.out.println("已选中");
+                            PickList.get(i).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                            PickList.remove(i);
+                        }
                     }
                 }
-                LastGeom = closetGeom;//保存当前最近的几何体
-                ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+//                if (closetGeom != LastGeom ){//空选 或 下一个对象
+//                    ////选中其他物体时取消上一个物体的透明操作
+//                    if (ctrl == false) {//单选
+//                        if (LastGeom != null) {
+//                            LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//                            foegrinNode.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
+//                        }
+//                    }
+//                    LastGeom = closetGeom;//保存当前最近的几何体
+//                    ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+//                }
+//            simpleApp.getRootNode().attachChild(AxisNode);
+//                simpleApp.getRootNode().attachChild(ClosestNode);//将 选中节点 添加进场景
+//                System.out.println( "选中节点有：" + ClosestNode.getChildren());
+            }else {
+                System.out.println("没有BoundingBox");
             }
-            simpleApp.getRootNode().attachChild(AxisNode);
-            simpleApp.getRootNode().attachChild(ClosestNode);//将 选中节点 添加进场景
-            System.out.println( "选中节点有：" + ClosestNode.getChildren());
         } else {
-            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
-                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
-                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
-                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
-                foegrinNode.attachChild(closestNodeChild);//添加回原节点
-                LastGeom = null;//LastGeom 复位后才能再次选中
-                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
+            for (int i = 0; !PickList.isEmpty(); i++) {
+                PickList.get(i).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                PickList.remove(i);
             }
-            AxisNode.removeFromParent();
-            ClosestNode.removeFromParent();
+//            PickLast = null;
+//            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
+//                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
+//                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
+//                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
+//                foegrinNode.attachChild(closestNodeChild);//添加回原节点
+//                LastGeom = null;//LastGeom 复位后才能再次选中
+//                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
+//            }
+//            AxisNode.removeFromParent();
+//            ClosestNode.removeFromParent();
         }
     }
     private Ray updateRay() {
@@ -209,7 +235,7 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
         simpleApp.getRootNode().attachChild(axisAppState.getRootNode());
         simpleApp.getRootNode().attachChild(ClosestNode);
         simpleApp.getRootNode().attachChild(foegrinNode);
-        simpleApp.getRootNode().attachChild(AxisNode);
+//        simpleApp.getRootNode().attachChild(AxisNode);
     }
 
     @Override
@@ -217,7 +243,7 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
         simpleApp.getRootNode().detachChild(axisAppState.getRootNode());
         simpleApp.getRootNode().detachChild(ClosestNode);
         simpleApp.getRootNode().detachChild(foegrinNode);
-        simpleApp.getRootNode().detachChild(AxisNode);
+//        simpleApp.getRootNode().detachChild(AxisNode);
     }
 
 
