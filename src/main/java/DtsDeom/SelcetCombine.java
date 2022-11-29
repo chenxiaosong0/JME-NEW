@@ -6,7 +6,6 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -130,21 +129,41 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
                 if (PickList.isEmpty()){
                     PickList.add(closetGeom);
                 }else {
-                    for (int i = 0; i < PickList.size(); i++) {
-                        if (closetGeom != PickList.get(i)){
-                            if (ctrl == false){
-                                for (int i1 = 0; i1 < PickList.size(); i1++) {
-                                    PickList.get(i1).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-                                    PickList.remove(i);
-                                }
+                    if (!PickList.contains(closetGeom)){
+                        System.out.println("不包含");
+                        if (ctrl == false){//单选
+                            for (int i1 = 0; i1 < PickList.size(); i1++) {
+                                System.out.println("单选 取消"+ PickList.get(i1));
+                                PickList.get(i1).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                                PickList.remove(i1);
                             }
-                            PickList.add(closetGeom);
                         }else {
-                            System.out.println("已选中");
-                            PickList.get(i).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-                            PickList.remove(i);
+                            System.out.println("进入多选 "+ ctrl);
                         }
+                        PickList.add(closetGeom);
+                    }else {
+                        System.out.println("已包含");
+                        closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
                     }
+//                    for (int i = 0; i < PickList.size(); i++) {
+//                        System.out.println("closetGeom = " + closetGeom+ " PickList.get "+ i + " = " + PickList.get(i));
+//                        if (closetGeom != PickList.get(i)){
+//                            if (ctrl == false){//单选
+//                                for (int i1 = 0; i1 < PickList.size(); i1++) {
+//                                    System.out.println("单选 取消"+ PickList.get(i1));
+//                                    PickList.get(i1).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//                                    PickList.remove(i1);
+//                                }
+//                            }else {
+//                                System.out.println("进入多选 "+ ctrl);
+//                            }
+//                            PickList.add(closetGeom);
+//                        }else {
+//                            System.out.println("已选中");
+////                            PickList.get(i).getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+////                            PickList.remove(i);
+//                        }
+//                    }
                 }
 //                if (closetGeom != LastGeom ){//空选 或 下一个对象
 //                    ////选中其他物体时取消上一个物体的透明操作
@@ -210,14 +229,14 @@ public class SelcetCombine extends BaseAppState implements ActionListener {
          */
         if (results.size() > 0) {
             // 从近到远，打印出射线途径的所有交点。
-            for (int i = 0; i < results.size(); i++) {
-                CollisionResult result = results.getCollision(i);
-                float dist = result.getDistance();//距离
-                Vector3f point = result.getContactPoint();//交点
-                Vector3f normal = result.getContactNormal();//交点法线
-                Geometry geom = result.getGeometry();//返回相交的几何体
-                System.out.printf("序号：%d, 距离：%.2f, 物体名称：%s, 交点：%s, 交点法线：%s\n", i, dist, geom.getName(), point, normal);
-            }
+//            for (int i = 0; i < results.size(); i++) {
+//                CollisionResult result = results.getCollision(i);
+//                float dist = result.getDistance();//距离
+//                Vector3f point = result.getContactPoint();//交点
+//                Vector3f normal = result.getContactNormal();//交点法线
+//                Geometry geom = result.getGeometry();//返回相交的几何体
+//                System.out.printf("序号：%d, 距离：%.2f, 物体名称：%s, 交点：%s, 交点法线：%s\n", i, dist, geom.getName(), point, normal);
+//            }
             // 离射线原点最近的交点
             Vector3f closest = results.getClosestCollision().getContactPoint();
             // 离射线原点最远的交点

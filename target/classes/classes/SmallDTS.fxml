@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX_GUI.FXML_Controll_Example">
+   <top>
+      <HBox prefHeight="25.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <MenuBar prefHeight="25.0" prefWidth="185.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" text="Open" />
+                        <MenuItem mnemonicParsing="false" text="Open Recent" />
+                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" text="Save as.." />
+                        <MenuItem mnemonicParsing="false" text="Export.." />
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Tool windows">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Commit" />
+                          </items>
+                        </Menu>
+                      <MenuItem mnemonicParsing="false" text="Tool bar" />
+                        <MenuItem mnemonicParsing="false" text="Appearance" />
+                    </items>
+                  </Menu>
+              </menus>
+            </MenuBar>
+            <Label prefHeight="25.0" prefWidth="52.0" text="Search:" />
+            <TextField prefHeight="9.0" prefWidth="126.0">
+               <HBox.margin>
+                  <Insets top="2.0" />
+               </HBox.margin>
+            </TextField>
+            <MenuButton mnemonicParsing="false" text="Formally">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Debug" />
+                <MenuItem mnemonicParsing="false" text="Buid" />
+              </items>
+               <HBox.margin>
+                  <Insets left="2.0" top="2.0" />
+               </HBox.margin>
+            </MenuButton>
+         </children>
+      </HBox>
+   </top>
+   <bottom>
+      <SplitPane orientation="VERTICAL" prefHeight="26.0" prefWidth="1000.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <SplitPane dividerPositions="0.8099062918340026" orientation="VERTICAL" prefHeight="722.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+        <items>
+            <SplitPane dividerPositions="0.2775551102204409, 0.8507014028056112" prefHeight="684.0" prefWidth="1000.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+                  <AnchorPane id="JmeStage" fx:id="Center" onMouseClicked="#Center_Click" prefHeight="699.0" prefWidth="566.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+              </items>
+            </SplitPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="193.0" prefWidth="998.0" />
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>
