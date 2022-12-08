@@ -129,6 +129,7 @@ public class MainFrame extends SimpleApplication {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
+                System.out.println("close");
                 app.stop();
             }
         });
@@ -157,7 +158,7 @@ public class MainFrame extends SimpleApplication {
         grid.center().move(0, 0, 0);
         grid.setShadowMode(RenderQueue.ShadowMode.Off);
         rootNode.attachChild(grid);
-        viewPort.setBackgroundColor(ColorRGBA.LightGray);
+//        viewPort.setBackgroundColor(ColorRGBA.LightGray);
 
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -2, -3)));
         rootNode.addLight(new AmbientLight(new ColorRGBA(0.2f, 0.2f, 0.2f, 1f)));

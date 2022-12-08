@@ -32,6 +32,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 
+import java.util.List;
+
 /**
  * 利用射线检测，实现拾取。
  *
@@ -79,9 +81,7 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
         cam.setLocation(new Vector3f(89.0993f, 20.044929f, -86.18647f));
         cam.setRotation(new Quaternion(0.063343525f, 0.18075047f, -0.01166729f, 0.9814177f));
 
-        stateManager.attachAll(cubeAppState,axisAppState);
-
-        stateManager.getState(axisAppState.getClass()).setEnabled(false);//刚开始坐标轴不需要显示
+        stateManager.attachAll(cubeAppState);
         // 设置灯光渲染模式为单通道，这样更加明亮。
         renderManager.setPreferredLightMode(LightMode.SinglePass);
         renderManager.setSinglePassLightBatchSize(2);
@@ -156,6 +156,7 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
         Ray ray =  updateRay();
         CollisionResults results = new CollisionResults();
         // rootNode.collideWith(ray, results);// 碰撞检测
+        stateManager.attach(axisAppState);
         Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();//场景节点
         Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();//坐标轴节点
         Node pickable = (Node) cubeSceneNode.getChild("pickable");//场景中要射线检测的节点
@@ -171,29 +172,50 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
             AxisNode.setLocalTranslation(bound.getCenter());
             closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);//透明操作
             closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            if (closetGeom != LastGeom ){//空选 或 下一个对象
-                ////选中其他物体时取消上一个物体的透明操作
-                if (ctrl == false) {//单选
-                    if (LastGeom != null) {
-                        LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-                        pickable.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
+            if (!ClosestNode.hasChild(closetGeom)){
+                if (ctrl == false) {//单选,删除以前的对象
+                    List<Spatial> children = ClosestNode.getChildren();
+                    for (int i = 0;  children.size() != 0 ; ) {
+                        Geometry child = (Geometry)  children.get(i);
+                        child.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                        pickable.attachChild(child);
                     }
+                    ClosestNode.detachAllChildren();
                 }
-                LastGeom = closetGeom;//保存当前最近的几何体
-                ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+                ClosestNode.attachChild(closetGeom);
             }
+//            if (closetGeom != LastGeom ){//空选 或 下一个对象
+//                ////选中其他物体时取消上一个物体的透明操作
+//                if (ctrl == false) {//单选
+//                    if (LastGeom != null) {
+//                        LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+//                        pickable.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
+//                    }
+//                }
+//                LastGeom = closetGeom;//保存当前最近的几何体
+//                ClosestNode.attachChild(LastGeom);//添加选中对象进节点
+//            }
             rootNode.attachChild(AxisNode);
             rootNode.attachChild(ClosestNode);//将 选中节点 添加进场景
             System.out.println( "选中节点有：" + ClosestNode.getChildren());
         } else {
-            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
-                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
-                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
-                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
-                pickable.attachChild(closestNodeChild);//添加回原节点
-                LastGeom = null;//LastGeom 复位后才能再次选中
-                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
+            if (ClosestNode != null) {
+                List<Spatial> children = ClosestNode.getChildren();
+                for (int i = 0;  children.size() != 0; ) {
+                    Geometry child = (Geometry) children.get(i);
+                    child.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                    pickable.attachChild(child);
+                }
             }
+            ClosestNode.detachAllChildren();
+//            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
+//                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
+//                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
+//                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
+//                pickable.attachChild(closestNodeChild);//添加回原节点
+//                LastGeom = null;//LastGeom 复位后才能再次选中
+//                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
+//            }
             AxisNode.removeFromParent();
             ClosestNode.removeFromParent();
         }
