@@ -14,7 +14,6 @@ import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -160,7 +159,7 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
         Node cubeSceneNode = stateManager.getState(cubeAppState.getClass()).getRootNode();//场景节点
         Node AxisNode = stateManager.getState(axisAppState.getClass()).getAxisNode();//坐标轴节点
         Node pickable = (Node) cubeSceneNode.getChild("pickable");//场景中要射线检测的节点
-        pickable.collideWith(ray, results);// 只和地板上的几何体进行碰撞检测
+        rootNode.collideWith(ray, results);// 只和地板上的几何体进行碰撞检测
         print(results);// 打印检测结果
         //判断检测结果
         if (results.size() > 0) {
@@ -172,8 +171,8 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
             AxisNode.setLocalTranslation(bound.getCenter());
             closetGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);//透明操作
             closetGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            if (!ClosestNode.hasChild(closetGeom)){
-                if (ctrl == false) {//单选,删除以前的对象
+            if (!ClosestNode.hasChild(closetGeom)){//ClosestNode没有
+                if (ctrl == false ) {//单选,删除以前的对象
                     List<Spatial> children = ClosestNode.getChildren();
                     for (int i = 0;  children.size() != 0 ; ) {
                         Geometry child = (Geometry)  children.get(i);
@@ -183,21 +182,23 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
                     ClosestNode.detachAllChildren();
                 }
                 ClosestNode.attachChild(closetGeom);
+            }else {//已经有了，就清空
+                List<Spatial> children = ClosestNode.getChildren();
+                for (int i = 0;  children.size() != 0 ; ) {
+                    Geometry child = (Geometry)  children.get(i);
+                    child.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
+                    pickable.attachChild(child);
+                }
+                ClosestNode.detachAllChildren();
             }
-//            if (closetGeom != LastGeom ){//空选 或 下一个对象
-//                ////选中其他物体时取消上一个物体的透明操作
-//                if (ctrl == false) {//单选
-//                    if (LastGeom != null) {
-//                        LastGeom.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);
-//                        pickable.attachChild(LastGeom);//脱离选中节点，添加回原场景节点
-//                    }
-//                }
-//                LastGeom = closetGeom;//保存当前最近的几何体
-//                ClosestNode.attachChild(LastGeom);//添加选中对象进节点
-//            }
-            rootNode.attachChild(AxisNode);
-            rootNode.attachChild(ClosestNode);//将 选中节点 添加进场景
-            System.out.println( "选中节点有：" + ClosestNode.getChildren());
+            if (!ClosestNode.getChildren().isEmpty()){//ClosestNode里有选中对象？
+                rootNode.attachChild(AxisNode);
+                rootNode.attachChild(ClosestNode);//将 选中节点 添加进场景
+            }else {
+                AxisNode.removeFromParent();
+                ClosestNode.removeFromParent();
+            }
+            System.out.println( "选中节点有：" + ClosestNode.getVertexCount());
         } else {
             if (ClosestNode != null) {
                 List<Spatial> children = ClosestNode.getChildren();
@@ -208,15 +209,8 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
                 }
             }
             ClosestNode.detachAllChildren();
-//            for ( int i = 0;!ClosestNode.getChildren().isEmpty();) {//对应多选对象取消透明操作
-//                System.out.println("ClosestNode.getChildren().size()= " + ClosestNode.getChildren().size());
-//                Geometry closestNodeChild = (Geometry) ClosestNode.getChild(i);
-//                closestNodeChild.getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Off);//透明度复位
-//                pickable.attachChild(closestNodeChild);//添加回原节点
-//                LastGeom = null;//LastGeom 复位后才能再次选中
-//                System.out.println( "删除选中节点对象后有：" + closestNodeChild.getName());
-//            }
-            AxisNode.removeFromParent();
+//            AxisNode.removeFromParent();
+            axisAppState.onDisable();
             ClosestNode.removeFromParent();
         }
     }
@@ -259,14 +253,14 @@ public class SelectFunction extends SimpleApplication implements ActionListener 
          */
         if (results.size() > 0) {
             // 从近到远，打印出射线途径的所有交点。
-            for (int i = 0; i < results.size(); i++) {
-                CollisionResult result = results.getCollision(i);
-                float dist = result.getDistance();//距离
-                Vector3f point = result.getContactPoint();//交点
-                Vector3f normal = result.getContactNormal();//交点法线
-                Geometry geom = result.getGeometry();//返回相交的几何体
-                System.out.printf("序号：%d, 距离：%.2f, 物体名称：%s, 交点：%s, 交点法线：%s\n", i, dist, geom.getName(), point, normal);
-            }
+//            for (int i = 0; i < results.size(); i++) {
+//                CollisionResult result = results.getCollision(i);
+//                float dist = result.getDistance();//距离
+//                Vector3f point = result.getContactPoint();//交点
+//                Vector3f normal = result.getContactNormal();//交点法线
+//                Geometry geom = result.getGeometry();//返回相交的几何体
+//                System.out.printf("序号：%d, 距离：%.2f, 物体名称：%s, 交点：%s, 交点法线：%s\n", i, dist, geom.getName(), point, normal);
+//            }
             // 离射线原点最近的交点
             Vector3f closest = results.getClosestCollision().getContactPoint();
             // 离射线原点最远的交点
